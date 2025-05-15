@@ -15,7 +15,7 @@ export default {
     comfirmModal
   },
   methods: {
-    clearList: function () {
+    clearList() {
       let listId = this.$store.getters.listToClearId;
       this.$store.commit('clearTodoList', listId);
       toDoListRepository.update(listId, []);
