@@ -6,6 +6,7 @@
 <script>
 import comfirmModal from "../../components/comfirmModal.vue";
 import exportTool from "../../helpers/exportTool";
+import isElectron from "is-electron";
 
 export default {
   name: "clearDataModal",
@@ -14,11 +15,18 @@ export default {
   },
   methods: {
     clearData: function () {
-      let isElectron = require("is-electron");
       if (isElectron()) {
-        const { ipcRenderer } = require('electron');
-        ipcRenderer.send('set-tray-context-menu-label', { open: 'Open', quit: 'Quit' });
-        ipcRenderer.send('set-dark-tray-icon',false);
+        let ipcRenderer;
+        try {
+          // Dynamically require electron only in Electron environment
+          ipcRenderer = require('electron').ipcRenderer;
+        } catch (e) {
+          ipcRenderer = null;
+        }
+        if (ipcRenderer) {
+          ipcRenderer.send('set-tray-context-menu-label', { open: 'Open', quit: 'Quit' });
+          ipcRenderer.send('set-dark-tray-icon', false);
+        }
       }
       exportTool.clear();
     },
