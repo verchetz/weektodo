@@ -117,7 +117,7 @@ export default {
     });
   },
   methods: {
-    changeDate: function () {
+    changeDate() {
       this.datepickerEnabled = true;
       this.$nextTick(function () {
         document.getElementById("side-bar-date-picker-input").click();
@@ -128,32 +128,32 @@ export default {
         };
       });
     },
-    setTodayDate: function () {
+    setTodayDate() {
       this.$emit("changeDate", moment().format("YYYYMMDD"));
     },
-    newCustomTodoList: function () {
+    newCustomTodoList() {
       const customTodoListId = { listId: moment().format("YYYYMMDDTHHmmssS"), listName: "" };
       this.$store.commit("actionsCListCreatedUpdate", true);
       this.$store.commit("newCustomTodoList", customTodoListId);
       customToDoListIdsRepository.update(this.$store.getters.cTodoListIds);
       toDoListRepository.update(customTodoListId.listId, this.$store.getters.todoLists[customTodoListId.listId]);
     },
-    resetDatePicker: function () {
+    resetDatePicker() {
       document.getElementById("side-bar-date-picker-input").removeEventListener("focusout", this.resetDatePicker);
       this.datepickerEnabled = false;
     },
-    openConfigModal: function () {
+    openConfigModal() {
       document.getElementById("config-general-tab").click();
     },
-    openDonateModal: function () {
+    openDonateModal() {
       window.open("https://weektodo.me/support-us", "_blank");
     },
-    print: function () {
+    print() {
       window.print();
     },
   },
   watch: {
-    pickedDate: function (val) {
+    pickedDate(val) {
       if (this.datepickerEnabled) {
         document.getElementById("side-bar-date-picker-input").removeEventListener("focusout", this.resetDatePicker);
         this.datepickerEnabled = false;
@@ -163,16 +163,16 @@ export default {
     },
   },
   computed: {
-    showCustomList: function () {
+    showCustomList() {
       return this.$store.getters.config.customList;
     },
-    showCalendar: function () {
+    showCalendar() {
       return this.$store.getters.config.calendar;
     },
-    weekStartOnMonday: function () {
+    weekStartOnMonday() {
       return this.$store.getters.config.weekStartOnMonday ? 1 : 0;
     },
-    language: function () {
+    language() {
       let lang = this.$store.getters.config.language;
       return languageHelper.getLanguagePack(lang);
     },
