@@ -16,7 +16,7 @@ export default {
     comfirmModal
   },
   computed: {
-    listId: function () {
+    listId() {
       if (this.$store.getters.actions.cListToRmv) {
         return this.$store.getters.actions.cListToRmv.name;
       }
@@ -24,7 +24,7 @@ export default {
     }
   },
   methods: {
-    removeCustomList: function () {
+    removeCustomList() {
       this.$store.commit('removeCustomTodoList', this.$store.getters.actions.cListToRmv);
       var modalEl = document.getElementById('customListRemoveModal');
       var modal = Modal.getInstance(modalEl);
