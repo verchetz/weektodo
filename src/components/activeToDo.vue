@@ -62,7 +62,7 @@ export default {
     };
   },
   methods: {
-    removeTodo: function () {
+    removeTodo() {
       this.$store.commit("setUndoElement", { type: 'task', todo: this.activeTodo.toDo, index: this.activeTodo.index });
       this.$store.commit("removeTodo", { toDoListId: this.activeTodo.toDoListId, index: this.activeTodo.index, });
       notifications.refreshDayNotifications(this, this.activeTodo.toDoListId);
@@ -71,7 +71,7 @@ export default {
       toast.show(); // The undo remove acction it's called in todoModal.vue:undoRemoveTask
       this.hideToDoItem();
     },
-    showToDoDetails: function () {
+    showToDoDetails() {
       this.$store.commit("actionsSelectedTodoIdUpdate", {
         toDo: this.activeTodo.toDo,
         index: this.activeTodo.index,
@@ -80,7 +80,7 @@ export default {
       let modal = new Modal(document.getElementById("toDoModal"), { keyboard: false });
       modal.show();
     },
-    checkTodoClickhandler: function (e) {
+    checkTodoClickhandler(e) {
       if (e.target.href) return;
 
       this.$store.commit("checkTodo", { toDoListId: this.activeTodo.toDoListId, index: this.activeTodo.index, });
@@ -88,7 +88,7 @@ export default {
       var index = this.activeTodo.index;
       this.clickhandler.handle(() => { this.checkToDo(id, index) }, this.activeTodo.edit, `${this.activeTodo.toDoListId}${this.activeTodo.index}`);
     },
-    checkToDo: function (toDoListId, index) {
+    checkToDo(toDoListId, index) {
       if (this.$store.getters.todoLists[toDoListId][index].checked && this.$store.getters.config.moveCompletedTaskToBottom) {
         this.$refs.currentTodo.style.display = `none`;
         this.$store.commit("moveTodoToEnd", { toDoListId: toDoListId, index: index, });
@@ -101,7 +101,7 @@ export default {
       }
       notifications.refreshDayNotifications(this, this.activeTodo.toDoListId);
     },
-    startDrag: function (event, item, index) {
+    startDrag(event, item, index) {
       event.dataTransfer.dropEffect = "move";
       event.dataTransfer.effectAllowed = "move";
       event.dataTransfer.setData("item", JSON.stringify(item));
@@ -113,17 +113,17 @@ export default {
       }, 40);
       document.getElementById("app-container").classList.add("dragging-item");
     },
-    endDrag: function () {
+    endDrag() {
       this.todoDragging = false;
       document.getElementById("app-container").classList.remove("dragging-item");
     },
-    onDragenter: function () {
+    onDragenter() {
       this.todoDragHover = true;
     },
-    onDragleave: function () {
+    onDragleave() {
       this.todoDragHover = false;
     },
-    checkSubTask: function (subTask, index, e) {
+    checkSubTask(subTask, index, e) {
       if (e.target.href) return;
 
       if (!e.target.value) subTask.checked = !subTask.checked;
@@ -131,15 +131,15 @@ export default {
       if (subTask.checked && this.moveSubtaskToBotttom) { todoList.push(todoList.splice(index, 1)[0]); }
       toDoListRepository.update(this.activeTodo.toDoListId, this.$store.getters.todoLists[this.activeTodo.toDoListId]);
     },
-    timeFormat: function (date) {
+    timeFormat(date) {
       if (date) {
         return moment(date, "HH:mm").format("hh:mm a");
       }
     },
-    linkifyText: function (text) {
+    linkifyText(text) {
       return linkifyStr(text, this.options);
     },
-    hideToDoItem: function () {
+    hideToDoItem() {
       this.$refs.currentTodo.style.display = `none`;
     },
     movingWheel() {
@@ -159,13 +159,13 @@ export default {
     }
   },
   computed: {
-    todoText: function () {
+    todoText() {
       return linkifyStr(this.activeTodo.toDo.text, this.options);
     },
-    notificationIndicator: function () {
+    notificationIndicator() {
       return this.$store.getters.config.notificationIndicator;
     },
-    moveSubtaskToBotttom: function () {
+    moveSubtaskToBotttom() {
       return this.$store.getters.config.moveCompletedSubTaskToBottom;
     },
   }
