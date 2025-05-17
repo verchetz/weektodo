@@ -1,5 +1,5 @@
 <template>
-    <div :id="id" class="toast fade hide" role="alert" aria-live="assertive" aria-atomic="true">
+    <div ref="toast" class="toast fade hide" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
         <div class="toast-body">
           {{text}}
@@ -23,7 +23,7 @@
         },
         methods: {
             show: function () {
-                var toast = new Toast(document.getElementById(this.id));
+                var toast = new Toast(this.$refs.toast);
                 toast.show();
             },
             subTextClick: function () {
@@ -39,5 +39,4 @@
     margin-left: 5px;
     cursor: pointer;
   }
-
 </style>
