@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import isElectron from "is-electron";
 
     export default {
         name: "donateModal",
@@ -24,7 +25,7 @@
             linkList: {type: Array, required: true}
         },
         methods: {
-            linkAction: function (link, linktype) {
+            linkAction(link, linktype) {
                 switch (linktype) {
                     case 'email':
                         this.emailLink(link);
@@ -37,18 +38,25 @@
                         break;
                 }
             },
-            emailLink: function (link) {
+            emailLink(link) {
                 window.open(link);
             },
-            externaLink: function (link) {
-                let isElectron = require("is-electron");
+            externaLink(link) {
                 if (isElectron()) {
-                    require('electron').shell.openExternal(link, '_blank');
+                    let shell;
+                    try {
+                        shell = require('electron').shell;
+                    } catch (e) {
+                        shell = null;
+                    }
+                    if (shell) {
+                        shell.openExternal(link, '_blank');
+                    }
                 } else {
                     window.open(link, '_blank');
                 }
             },
-            tagIdLink: function (id) {
+            tagIdLink(id) {
                 document.getElementById(id).click();
             }
         }

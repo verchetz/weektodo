@@ -37,8 +37,8 @@ export default {
     ico: { required: true },
   },
   methods: {
-    onOk: function () { this.$emit("onOk"); },
-    onCancel: function () { this.$emit("onCancel"); }
+    onOk() { this.$emit("onOk"); },
+    onCancel() { this.$emit("onCancel"); }
   }
 };
 </script>
