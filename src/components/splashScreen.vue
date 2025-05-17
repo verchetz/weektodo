@@ -62,8 +62,9 @@ export default {
       this.show = false;
     },
     renderSponsor: function (response) {
-      var sponsors = [];
+      const sponsors = [];
 
+      // Add default sponsor
       sponsors.push({
         name: "WeekToDo",
         message: this.$t("donate.splashMessage"),
@@ -71,28 +72,22 @@ export default {
         img: "/icons/ko-fi.png",
       });
 
-      response.data.bronze.forEach(function (obj) {
-        sponsors.push(obj);
-      });
+      // Helper function to multiply sponsors
+      const addSponsors = (sponsorList, multiplier) => {
+        sponsorList.forEach((obj) => {
+          for (let i = 0; i < multiplier; i++) {
+            sponsors.push(obj);
+          }
+        });
+      };
 
-      response.data.silver.forEach(function (obj) {
-        for (let i = 0; i < 3; i++) {
-          sponsors.push(obj);
-        }
-      });
+      // Add sponsors based on their type
+      addSponsors(response.data.bronze, 1);
+      addSponsors(response.data.silver, 3);
+      addSponsors(response.data.golden, 7);
+      addSponsors(response.data.diamond, 15);
 
-      response.data.golden.forEach(function (obj) {
-        for (let i = 0; i < 7; i++) {
-          sponsors.push(obj);
-        }
-      });
-
-      response.data.diamond.forEach(function (obj) {
-        for (let i = 0; i < 15; i++) {
-          sponsors.push(obj);
-        }
-      });
-
+      // Select a random sponsor
       this.sponsor = sponsors[Math.floor(Math.random() * sponsors.length)];
     },
   },
