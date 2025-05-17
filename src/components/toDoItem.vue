@@ -33,10 +33,9 @@
 <script>
 import toDoListRepository from "../repositories/toDoListRepository";
 import moment from "moment";
-import linkifyStr from 'linkify-string';
+import linkifyStr from "linkify-string";
 
 export default {
-  components: {},
   props: {
     toDo: { required: true, type: Object },
     index: { required: true, type: Number },
@@ -47,18 +46,24 @@ export default {
       editing: false,
       text: this.toDo.text,
       todoDragHover: false,
-      options: { target: '_blank', defaultProtocol: 'https' }
+      options: { target: "_blank", defaultProtocol: "https" },
+      activeTodoStyles: {
+        width: null,
+        top: null,
+        left: null,
+        display: "none",
+      },
     };
   },
   methods: {
     editToDo: function () {
       this.text = this.toDo.text;
       this.editing = true;
-      this.$nextTick(function () {
+      this.$nextTick(() => {
         this.$refs.toDoEditInput.focus();
         this.$refs.toDoEditInput.select();
       });
-      document.getElementById("todo-item-active").style.display = 'none';
+      this.activeTodoStyles.display = "none";
     },
     doneEdit: function () {
       this.editing = false;
@@ -67,7 +72,10 @@ export default {
         index: this.index,
         text: this.text,
       });
-      toDoListRepository.update(this.toDoListId, this.$store.getters.todoLists[this.toDoListId]);
+      toDoListRepository.update(
+        this.toDoListId,
+        this.$store.getters.todoLists[this.toDoListId]
+      );
     },
     cancelEdit: function () {
       this.text = this.toDo.text;
@@ -85,26 +93,29 @@ export default {
       }
     },
     showToDoItem: function () {
-      var activeTodo = {
+      const activeTodo = {
         toDo: this.toDo,
         index: this.index,
         toDoListId: this.toDoListId,
         edit: this.editToDo,
-        container: this.$refs.itemContainer
+        container: this.$refs.itemContainer,
       };
-      this.$store.commit('setActiveTodo', activeTodo);
+      this.$store.commit("setActiveTodo", activeTodo);
 
-      const activeTodoItem = document.getElementById("todo-item-active");
-      this.$nextTick(function () {
-        const bounding = this.$refs.itemContainer.getBoundingClientRect();
-        activeTodoItem.style.width = `${bounding.width}px`;
-        activeTodoItem.style.top = `${bounding.y}px`;
-        activeTodoItem.style.left = `${bounding.x}px`;
-        activeTodoItem.style.display = `block`;
-        const margin_bottom = 10;
-        var offset = parseInt(window.innerHeight) - (parseInt(bounding.y) + parseInt(activeTodoItem.offsetHeight)) - margin_bottom;
-        if (offset < 0) activeTodoItem.style.top = `${bounding.y + offset}px`;
-      });
+      const bounding = this.$refs.itemContainer.getBoundingClientRect();
+      this.activeTodoStyles.width = `${bounding.width}px`;
+      this.activeTodoStyles.top = `${bounding.y}px`;
+      this.activeTodoStyles.left = `${bounding.x}px`;
+      this.activeTodoStyles.display = "block";
+
+      const marginBottom = 10;
+      const offset =
+        parseInt(window.innerHeight) -
+        (parseInt(bounding.y) + parseInt(this.activeTodoStyles.height)) -
+        marginBottom;
+      if (offset < 0) {
+        this.activeTodoStyles.top = `${bounding.y + offset}px`;
+      }
     },
   },
   computed: {
@@ -116,8 +127,8 @@ export default {
     },
     notificationIndicator: function () {
       return this.$store.getters.config.notificationIndicator;
-    }
-  }
+    },
+  },
 };
 </script>
 
