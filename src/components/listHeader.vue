@@ -19,52 +19,22 @@
     </div>
     <i v-show="!editing" class="bi-three-dots-vertical header-menu-icons dropdown-toggle-split align-self-center"
       type="button" data-bs-toggle="dropdown"></i>
-    <ul class="dropdown-menu" aria-labelledby="btnTaskOptionMenu">
-      <li>
-        <button class="dropdown-item" type="button" @click="newTask">
-          <i class="bi-plus-lg"></i> <span>{{ $t('ui.newTask') }}</span>
-        </button>
-      </li>
-      <li v-show="!allTodoChecked()">
-        <button class="dropdown-item" type="button" @click="check_all_items">
-          <i class="bi-check2-all"></i> <span>{{ $t('ui.completeAll') }}</span>
-        </button>
-      </li>
-      <li>
-        <button class="dropdown-item" type="button" @click="sortItems">
-          <i class="bi-sort-down"></i> <span>{{ $t('ui.reorder') }}</span>
-        </button>
-      </li>
-      <li v-show="!customTodoList && !allTodoChecked()">
-        <button class="dropdown-item" type="button" @click="moveUndoneItems">
-          <i class="bi-reply-all"></i> <span>{{ $t('ui.postpone') }}</span>
-        </button>
-      </li>
-      <li>
-        <button class="dropdown-item" type="button" @click="copyListTasksToClipboard">
-          <i class="bi-clipboard"></i> <span>{{ $t('ui.copyTasks') }}</span>
-        </button>
-      </li>
-      <li>
-        <hr class="dropdown-divider" />
-      </li>
-      <li>
-        <button class="dropdown-item" type="button" @click="clearList" data-bs-toggle="modal"
-          data-bs-target="#clearListModal">
-          <i class="bi-trash"></i> <span>{{ $t('ui.clearList') }}</span>
-        </button>
-      </li>
-      <li v-show="customTodoList">
-        <button class="dropdown-item" type="button" data-bs-dismiss="modal" @click="removeList" data-bs-toggle="modal"
-          data-bs-target="#customListRemoveModal">
-          <i class="bi-x-circle"></i> <span>{{ $t('ui.removeList') }}</span>
-        </button>
-      </li>
-    </ul>
+    <DropdownMenu
+      :customTodoList="customTodoList"
+      :allTodoChecked="allTodoChecked"
+      :newTask="newTask"
+      :check_all_items="check_all_items"
+      :sortItems="sortItems"
+      :moveUndoneItems="moveUndoneItems"
+      :copyListTasksToClipboard="copyListTasksToClipboard"
+      :clearList="clearList"
+      :removeList="removeList"
+    />
   </div>
 </template>
 
 <script>
+import DropdownMenu from "./DropdownMenu.vue";
 import moment from "moment";
 import toDoListRepository from "../repositories/toDoListRepository";
 import customToDoListIdsRepository from "../repositories/customToDoListIdsRepository";
@@ -73,7 +43,7 @@ import tasksHelper from "../helpers/tasksHelper";
 import { Toast } from 'bootstrap';
 
 export default {
-  components: {},
+  components: { DropdownMenu },
   props: {
     id: { required: false, type: String },
     customTodoList: { required: false, default: false, type: Boolean },
