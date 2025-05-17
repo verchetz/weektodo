@@ -3,7 +3,7 @@
     :id="'list' + id"
     class="to-do-list-container d-flex flex-column"
     ref="listContainer"
-    :class="{ 'old-date': !customTodoList && moment(id).isBefore(Date(), 'day') }"
+    :class="{ 'old-date': isOldDate }"
     :style="`flex: 0 0 ${100 / columns}%;`"
   >
     <div v-if="loading" class="loading-spinner">
@@ -141,14 +141,24 @@ export default {
   },
   computed: {
     toDoListState() {
-      return this.$store.getters.todoLists[this.id];
+      return this.$store.getters.todoLists[this.id] || [];
     },
     columns() {
       return this.customTodoList
         ? this.$store.getters.config.customColumns
         : this.$store.getters.config.columns;
     },
+    isOldDate() {
+      if (this.customTodoList) return false;
+      const today = new Date();
+      const idDate = new Date(this.id);
+      // Strip time for accurate 'day' comparison
+      today.setHours(0, 0, 0, 0);
+      idDate.setHours(0, 0, 0, 0);
+      return idDate < today;
+    },
   },
+
 };
 </script>
 
