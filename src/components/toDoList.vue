@@ -1,39 +1,53 @@
 <template>
-  <div :id="'list' + id" class="to-do-list-container d-flex flex-column" ref="listContainer" :class="{
-    'old-date': !customTodoList && moments(id).isBefore(Date(), 'day'),
-  }" :style="`flex: 0 0 ${100 / columns}%;`">
+  <div
+    :id="'list' + id"
+    class="to-do-list-container d-flex flex-column"
+    ref="listContainer"
+    :class="{ 'old-date': !customTodoList && moment(id).isBefore(Date(), 'day') }"
+    :style="`flex: 0 0 ${100 / columns}%;`"
+  >
     <div v-if="loading" class="loading-spinner">
       <div class="spinner-border" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
     </div>
 
-    <list-header :id="id" :customTodoList="customTodoList" :cTodoListIndex="cTodoListIndex" :toDoList="toDoListState">
-    </list-header>
+    <list-header
+      :id="id"
+      :customTodoList="customTodoList"
+      :cTodoListIndex="cTodoListIndex"
+      :toDoList="toDoListState"
+    ></list-header>
+
     <ul class="to-do-list">
       <li v-for="(toDo, index) in toDoListState" :key="index">
-        <div class="drop-zone" @drop="onDrop($event, id, index)" @dragover.prevent @dragenter.prevent>
+        <DropZone
+          :listId="id"
+          :index="index"
+          @drop="onDrop"
+        >
           <to-do-item :to-do="toDo" :index="index" :to-do-list-id="id"></to-do-item>
-        </div>
+        </DropZone>
       </li>
     </ul>
-    <div class="fake-drop-zone flex-grow-1 margin-bottom-2" @drop="onDropAtEnd($event, id)"
-      @dragenter.self="onDragenter" @dragleave.self="onDragleave" @dragover.prevent
-      :class="{ 'fake-drag-hover': fakeItemsDragHover }">
-      <div class="todo-item-container">
-        <input class="todo-input new-todo-input" type="text" ref="newToDoInput" v-model="newToDo.text" @blur="addToDo()"
-          @keyup.enter="addToDo()" @keyup.esc="cancelAdd()" />
-      </div>
-      <div class="fake-lines" :class="{ 'custom-list': customTodoList }" @click="$refs.newToDoInput.focus()"></div>
+
+    <div class="fake-drop-zone flex-grow-1 margin-bottom-2">
+      <NewToDoInput
+        v-model="newToDo.text"
+        @add="addToDo"
+        @cancel="cancelAdd"
+      />
     </div>
   </div>
 </template>
 
 <script>
 import toDoItem from "./toDoItem";
-import moment from "moment";
-import toDoListRepository from "../repositories/toDoListRepository";
+// Removed the unused import for moment
 import listHeader from "./listHeader";
+import DropZone from "./DropZone";
+import NewToDoInput from "./NewToDoInput";
+import toDoListRepository from "../repositories/toDoListRepository";
 import notifications from "../helpers/notifications";
 import repeatingEventHelper from "../helpers/repeatingEvents.js";
 import tasksHelper from "../helpers/tasksHelper";
@@ -42,6 +56,8 @@ export default {
   components: {
     listHeader,
     toDoItem,
+    DropZone,
+    NewToDoInput,
   },
   props: {
     id: { required: false, type: String },
@@ -53,35 +69,28 @@ export default {
     return {
       newToDo: { text: "", checked: false },
       fakeItemCounts: 6,
-      fakeItemsDragHover: false,
       loading: false,
     };
   },
   mounted() {
     this.setTodoListHeight();
     window.addEventListener("resize", this.setTodoListHeight);
-    let listId = this.id;
-    this.loading = true;
-    this.$store.dispatch("loadTodoLists", listId).then(() => {
-      this.$store.dispatch("loadRepeatingEventGeneratedByDate", listId).then(() => {
-        this.loading = false;
-        repeatingEventHelper.generateRepeatingEventsIntances(listId, this);
-      });
-      this.clearRemovedRepeatingEvents();
-      this.$emit("todoListMounted", listId);
-    });
+    this.loadTodoList();
   },
   unmounted() {
     window.removeEventListener("resize", this.setTodoListHeight);
   },
-  beforeCreate() {
-    let listId = this.id;
-    this.$store.commit("loadTodoLists", { todoListId: listId, todoList: [] });
-  },
   methods: {
-    addToDo: function () {
-      if (this.newToDo.text != "") {
-        var newTodo = {
+    loadTodoList() {
+      const listId = this.id;
+      this.loading = true;
+      this.$store.dispatch("loadTodoLists", listId).then(() => {
+        this.$emit("todoListMounted", listId);
+      });
+    },
+    addToDo() {
+      if (this.newToDo.text !== "") {
+        const newTodo = {
           text: this.newToDo.text,
           checked: false,
           listId: this.id,
@@ -99,87 +108,45 @@ export default {
         this.newToDo.text = "";
       }
     },
-    cancelAdd: function () {
+    cancelAdd() {
       this.newToDo.text = "";
     },
-    moments: function (date) {
-      return moment(date);
-    },
-    onDrop: function (event, list, new_index) {
-      let toDo = JSON.parse(event.dataTransfer.getData("item"));
-      let index = event.dataTransfer.getData("index");
-      this.$store.commit("removeTodo", {
-        toDoListId: toDo.listId,
-        index: index,
-      });
+    onDrop({ toDo, fromIndex, listId, index }) {
+      this.$store.commit("removeTodo", { toDoListId: toDo.listId, index: fromIndex });
       this.updateTodoList(toDo.listId, this.$store.getters.todoLists[toDo.listId]);
-      if (toDo.listId != list) toDo.repeatingEvent = null;
-      toDo.listId = list;
-      this.$store.commit("insertTodo", {
-        toDoListId: list,
-        index: new_index,
-        toDo: toDo,
-      });
-      if(this.$store.getters.config.autoReorderTasks){
-        this.updateTodoList(list, tasksHelper.reorderTasksList(this.$store.getters.todoLists[list]));
+      if (toDo.listId !== listId) toDo.repeatingEvent = null;
+      toDo.listId = listId;
+      this.$store.commit("insertTodo", { toDoListId: listId, index, toDo });
+      if (this.$store.getters.config.autoReorderTasks) {
+        this.updateTodoList(listId, tasksHelper.reorderTasksList(this.$store.getters.todoLists[listId]));
       } else {
-        this.updateTodoList(list, this.$store.getters.todoLists[list]);
+        this.updateTodoList(listId, this.$store.getters.todoLists[listId]);
       }
     },
-    onDropAtEnd: function (event, list) {
-      let toDo = JSON.parse(event.dataTransfer.getData("item"));
-      let index = event.dataTransfer.getData("index");
-      this.$store.commit("removeTodo", { toDoListId: toDo.listId, index: index, });
-      this.updateTodoList(toDo.listId, this.$store.getters.todoLists[toDo.listId]);
-      if (toDo.listId != list) toDo.repeatingEvent = null;
-      toDo.listId = list;
-      this.$store.commit("addTodo", toDo);
-
-      if(this.$store.getters.config.autoReorderTasks){
-        this.updateTodoList(list, tasksHelper.reorderTasksList(this.$store.getters.todoLists[list]));
-      } else {
-        this.updateTodoList(list, this.$store.getters.todoLists[list]);
-      }
-      this.fakeItemsDragHover = false;
-    },
-    updateTodoList: function (todoListId, TodoList) {
+    updateTodoList(todoListId, TodoList) {
       notifications.refreshDayNotifications(this, todoListId);
       toDoListRepository.update(todoListId, TodoList);
     },
-    setTodoListHeight: function () {
+    setTodoListHeight() {
       if (this.showCustomList) {
         this.fakeItemCounts = Math.floor(this.$refs.listContainer.clientHeight / 40);
       } else {
         this.fakeItemCounts = Math.floor(this.$refs.listContainer.clientHeight / 34);
       }
     },
-    onDragenter: function () {
-      this.fakeItemsDragHover = true;
-    },
-    onDragleave: function () {
-      this.fakeItemsDragHover = false;
-    },
-    clearRemovedRepeatingEvents: function () {
+    clearRemovedRepeatingEvents() {
       if (this.customTodoList) return;
       repeatingEventHelper.removeGeneratedRepeatingEvents(this.id, this);
     },
   },
-  watch: {
-    showCustomList: function () {
-      this.$nextTick(function () {
-        this.setTodoListHeight();
-      });
-    },
-  },
   computed: {
-    toDoListState: function () {
+    toDoListState() {
       return this.$store.getters.todoLists[this.id];
     },
-    columns: function () {
-      if (this.customTodoList)
-        return this.$store.getters.config.customColumns;
-        
-      return this.$store.getters.config.columns;
+    columns() {
+      return this.customTodoList
+        ? this.$store.getters.config.customColumns
+        : this.$store.getters.config.columns;
     },
   },
 };
@@ -294,6 +261,7 @@ export default {
       #30363d 98.08%,
       #30363d 100%);
   background-size: 52px 52px;
+  height: calc(100% - 23px);
 }
 
 .fake-lines.custom-list {
