@@ -46,8 +46,15 @@ export default {
   },
   clear() {
     if (isElectron()) {
-      const { ipcRenderer } = require("electron");
-      ipcRenderer.send("clear-config");
+      let ipcRenderer;
+      try {
+        ipcRenderer = require("electron").ipcRenderer;
+      } catch (e) {
+        ipcRenderer = null;
+      }
+      if (ipcRenderer) {
+        ipcRenderer.send("clear-config");
+      }
     }
 
     storageRepository.clean();
