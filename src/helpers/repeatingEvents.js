@@ -4,7 +4,7 @@ import moment from "moment";
 import tasksHelper from "./tasksHelper";
 
 export default {
-  generateRepeatingEventsIntances(listId, vue) {
+  generateRepeatingEventsInstances(listId, vue) {
     let r_events = vue.$store.getters.repeatingEventDateCache[listId] || [];
     r_events.forEach((re_id) => {
       var re = vue.$store.getters.repeatingEventList[re_id];
