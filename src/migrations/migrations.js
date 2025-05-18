@@ -1,6 +1,14 @@
 import configRepository from "../repositories/configRepository";
 import moment from "moment";
 
+function updateConfigIfMissing(key, defaultValue) {
+  let config = configRepository.load();
+  if (!(key in config)) {
+    config[key] = typeof defaultValue === 'function' ? defaultValue() : defaultValue;
+    configRepository.update(config);
+  }
+}
+
 export default {
   migrate() {
     configCheckUpdate();
@@ -16,11 +24,7 @@ export default {
 };
 
 function configCheckUpdate() {
-  let config = configRepository.load();
-  if (!("checkUpdates" in config)) {
-    config["checkUpdates"] = true;
-    configRepository.update(config);
-  }
+  updateConfigIfMissing("checkUpdates", true);
 }
 
 function configCalendarZoomColumnsCalendarHeight() {
@@ -56,11 +60,7 @@ function runInBackground() {
 }
 
 function mainDividerPosition() {
-  let config = configRepository.load();
-  if (!("mainDividerPosition" in config)) {
-    config["mainDividerPosition"] = 1;
-    configRepository.update(config);
-  }
+  updateConfigIfMissing("mainDividerPosition", 1);
 }
 
 function trayIcon() {
@@ -97,9 +97,5 @@ function v2_1_0() {
 }
 
 function v2_2_0() {
-  let config = configRepository.load();
-  if (!("lastDayOpened" in config)) {
-    config["lastDayOpened"] = moment().format("YYYY-MM-DD");
-    configRepository.update(config);
-  }
+  updateConfigIfMissing("lastDayOpened", () => moment().format("YYYY-MM-DD"));
 }
