@@ -43,35 +43,20 @@ export default {
     this.playNotificationSound(notificationSound);
   },
   playNotificationSound(notificationSound) {
-    var sound;
-    switch (notificationSound) {
-      case "pop":
-        sound = new Audio("sounds/pop-alert.ogg");
-        break;
-      case "positive":
-        sound = new Audio("sounds/positive.ogg");
-        break;
-      case "bell":
-        sound = new Audio("sounds/loud-bell.ogg");
-        break;
-      case "soft":
-        sound = new Audio("sounds/soft.ogg");
-        break;
-      case "tiny":
-        sound = new Audio("sounds/tiny.ogg");
-        break;
-      case "piano":
-        sound = new Audio("sounds/piano.ogg");
-        break;
-      case "soft-bell":
-        sound = new Audio("sounds/soft-bell.ogg");
-        break;
-      case "metal":
-        sound = new Audio("sounds/metal-gear.ogg");
-        break;
-      case "none":
-        return;
-    }
+    const soundMap = {
+      pop: "sounds/pop-alert.ogg",
+      positive: "sounds/positive.ogg",
+      bell: "sounds/loud-bell.ogg",
+      soft: "sounds/soft.ogg",
+      tiny: "sounds/tiny.ogg",
+      piano: "sounds/piano.ogg",
+      "soft-bell": "sounds/soft-bell.ogg",
+      metal: "sounds/metal-gear.ogg",
+    };
+    if (notificationSound === "none") return;
+    const soundPath = soundMap[notificationSound];
+    if (!soundPath) return;
+    const sound = new Audio(soundPath);
     sound.addEventListener("canplaythrough", () => {
       sound.play();
     });
