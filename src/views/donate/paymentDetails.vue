@@ -43,7 +43,7 @@
                 var toast = new Toast(document.getElementById('copiedAddress'));
                 toast.show();
             },
-            goHome: function () {
+            goHome() {
                 document.getElementById("cryptoTab").click()
             }
         }
