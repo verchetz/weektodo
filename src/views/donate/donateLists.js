@@ -18,7 +18,7 @@ export default {
                 ico: "bi-twitter",
                 color: "#3eafda",
                 linktype: "external",
-                link: "https://twitter.com/intent/tweet?text=".concat('',vue.$t('donate.shareMessage'),"  https://weektodo.me")
+                link: `https://twitter.com/intent/tweet?text=${vue.$t('donate.shareMessage')}  https://weektodo.me`
             },
             {
                 name: "Facebook",
@@ -32,7 +32,7 @@ export default {
                 ico: "bi-reddit",
                 color: "#ed4f1c",
                 linktype: "external",
-                link: "https://www.reddit.com/submit?title=".concat("",vue.$t('donate.shareMessage'),"&url=https%3A%2F%2Fweektodo.me%2F")
+                link: `https://www.reddit.com/submit?title=${vue.$t('donate.shareMessage')}&url=https%3A%2F%2Fweektodo.me%2F`
             }
         ]
     }
