@@ -67,7 +67,7 @@ export default {
     }
   },
   watch: {
-    color: function (newVal) {
+    color(newVal) {
       this.updateBtnShape(newVal);
     }
   }
