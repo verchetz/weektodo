@@ -35,12 +35,12 @@ export default {
         todoDesc: { required: true }
     },
     methods: {
-        resizeTextArea: function () {
+        resizeTextArea() {
             let textArea = this.$refs["descriptionInput"];
             textArea.style.height = "18px";
             textArea.style.height = textArea.scrollHeight + "px";
         },
-        editDescription: function () {
+        editDescription() {
             this.editingDescription = true;
             this.$nextTick(function () {
                 this.resizeTextArea();
@@ -49,14 +49,14 @@ export default {
                 this.$refs["descriptionInput"].scrollTop = 0;
             });
         },
-        doneEditDescription: function () {
+        doneEditDescription() {
             this.editingDescription = false;
             this.$emit('updatedDescription', this.desc);
         },
-        todoDescription: function () {
+        todoDescription() {
             return this.md.render(this.desc);
         },
-        goToMarkDown: function () {
+        goToMarkDown() {
             window.open("https://commonmark.org/help/", "_blank");
         },
     },
