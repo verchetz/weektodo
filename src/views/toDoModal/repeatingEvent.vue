@@ -227,7 +227,7 @@ export default {
 
       return re_event;
     },
-    moments: function (date) {
+    moments(date) {
       return moment(date);
     },
   },
