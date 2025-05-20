@@ -53,7 +53,7 @@ export default {
     },
   },
   watch: {
-    time: function (newVal) {
+    time(newVal) {
       this.selectedTime = newVal;
     },
   },
