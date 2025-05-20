@@ -210,11 +210,11 @@ export default {
     descriptionTextArea
   },
   methods: {
-    removeSubTask: function (index) {
+    removeSubTask(index) {
       this.todo.subTaskList.splice(index, 1);
       this.updateTodo();
     },
-    addSubTask: function () {
+    addSubTask() {
       if (this.newSubTask.text != "") {
         var newTodo = {
           text: this.newSubTask.text,
@@ -226,11 +226,11 @@ export default {
       }
       this.updateTodo();
     },
-    cancelAddSubTask: function () {
+    cancelAddSubTask() {
       this.newSubTask.text = "";
       this.$refs["newSubTask"].blur();
     },
-    editSubTask: function (index) {
+    editSubTask(index) {
       this.todo.subTaskList[index].editing = true;
       this.$nextTick(function () {
         this.$refs["subTaskEdit" + index][0].focus();
@@ -238,15 +238,15 @@ export default {
         this.tempSubTask = this.todo.subTaskList[index].text;
       });
     },
-    doneEditSubTask: function (index) {
+    doneEditSubTask(index) {
       this.todo.subTaskList[index].editing = false;
       this.updateTodo();
     },
-    cancelEditSubTask: function (index) {
+    cancelEditSubTask(index) {
       this.todo.subTaskList[index].text = this.tempSubTask;
       this.$refs["subTaskEdit" + index].blur();
     },
-    editTitle: function () {
+    editTitle() {
       this.editingTitle = true;
       this.$nextTick(function () {
         this.tempTitle = this.todo.text;
@@ -254,37 +254,37 @@ export default {
         this.$refs["titleInput"].select();
       });
     },
-    cancelEditTitle: function () {
+    cancelEditTitle() {
       this.todo.text = this.tempTitle;
       this.$refs["titleInput"].blur();
     },
-    doneEditTitle: function () {
+    doneEditTitle() {
       this.editingTitle = false;
       this.updateTodo();
     },
-    startDrag: function (event, index) {
+    startDrag(event, index) {
       event.dataTransfer.setData("index", index);
     },
-    onDragenter: function (event) {
+    onDragenter(event) {
       event.target.parentElement.classList.add("drag-hover");
     },
-    onDragleave: function (event) {
+    onDragleave(event) {
       event.target.parentElement.classList.remove("drag-hover");
     },
-    onDrop: function (event, to_index) {
+    onDrop(event, to_index) {
       let from_index = event.dataTransfer.getData("index");
       let sub_task = this.todo.subTaskList.splice(parseInt(from_index), 1)[0];
       this.todo.subTaskList.splice(to_index, 0, sub_task);
       event.target.parentElement.classList.remove("drag-hover");
       this.updateTodo();
     },
-    showCalendar: function () {
+    showCalendar() {
       document.getElementById("todo-date-picker-input").focus();
     },
-    checkTodoClickhandler: function (resetRepeatinEvent = true) {
+    checkTodoClickhandler(resetRepeatinEvent = true) {
       this.clickhandler.handle(function () { this.checkTodo(resetRepeatinEvent) }.bind(this), function () { })
     },
-    checkTodo: function (resetRepeatinEvent = true) {
+    checkTodo(resetRepeatinEvent = true) {
       if (this.todo.checked) {
         if (this.$store.getters.config.moveCompletedTaskToBottom) {
           this.$store.commit("moveTodoToEnd", { toDoListId: this.todo.listId, index: this.index });
@@ -293,13 +293,13 @@ export default {
       }
       this.updateTodoWithReorder(resetRepeatinEvent);
     },
-    updateTodo: function (resetRepeatinEvent = true) {
+    updateTodo(resetRepeatinEvent = true) {
       if (resetRepeatinEvent) {
         this.todo.repeatingEvent = null;
       }
       this.updateTodoList(this.todo.listId, this.todoList);
     },
-    updateTodoWithReorder: function (resetRepeatinEvent = true) {
+    updateTodoWithReorder(resetRepeatinEvent = true) {
       if (resetRepeatinEvent) {
         this.todo.repeatingEvent = null;
       }
@@ -310,14 +310,14 @@ export default {
         this.updateTodoList(this.todo.listId, this.todoList);
       }
     },
-    updateTodoList: function (todoListId, TodoList) {
+    updateTodoList(todoListId, TodoList) {
       notifications.refreshDayNotifications(this, todoListId);
       toDoListRepository.update(todoListId, TodoList);
     },
-    getCListOptions: function () {
+    getCListOptions() {
       this.cListOptions = this.$store.getters.cTodoListIds;
     },
-    moveToTodoList: function (newListID) {
+    moveToTodoList(newListID) {
       if (newListID == "Invalid date" || newListID == "") return;
 
       if (moment(newListID, "YYYYMMDD", true).isValid()) {
@@ -352,7 +352,7 @@ export default {
         this.loadToDoFormDB(newListID);
       }
     },
-    loadToDoFormDB: function (newListID) {
+    loadToDoFormDB(newListID) {
       let db_req = dbRepository.open();
       var instancePointer = this;
       db_req.onsuccess = function (event) {
@@ -367,21 +367,21 @@ export default {
         }.bind(this);
       }.bind(this);
     },
-    removeTodo: function () {
+    removeTodo() {
       this.$store.commit("setUndoElement", { type: 'task', todo: this.todo, index: this.index });
       this.$store.commit("removeTodo", { toDoListId: this.todo.listId, index: this.index });
       this.updateTodoList(this.todo.listId, this.$store.getters.todoLists[this.todo.listId]);
       let toast = new Toast(document.getElementById("taskRemoved"));
       toast.show();
     },
-    undoRemoveTask: function () {
+    undoRemoveTask() {
       let obj = this.$store.getters.undoElement;
       this.$store.commit("insertTodo", { toDoListId: obj.todo.listId, index: obj.index, toDo: obj.todo });
       this.updateTodoList(obj.todo.listId, this.$store.getters.todoLists[obj.todo.listId]);
       let toast = new Toast(document.getElementById("taskRemoved"));
       toast.hide();
     },
-    removeAll: function () {
+    removeAll() {
       let modal = new Modal(document.getElementById("removeReModalToDoDetails"), { backdrop: "static", });
       modal.show();
     },
@@ -400,7 +400,7 @@ export default {
       let modal = new Modal(document.getElementById("toDoModal"));
       modal.show();
     },
-    duplicateTodo: function () {
+    duplicateTodo() {
       var newTodo = {
         text: this.todo.text,
         checked: this.todo.checked,
@@ -472,19 +472,19 @@ export default {
       this.todo.repeatingEvent = repeatingEvent;
       this.updateTodo(false);
     },
-    changeSubTaskClickhandler: function (index) {
+    changeSubTaskClickhandler(index) {
       this.clickhandler.handle(function () { this.changeSubTask(index) }.bind(this), function () { this.editSubTask(index) }.bind(this), index);
     },
-    changeSubTask: function (index) {
+    changeSubTask(index) {
       if (this.todo.subTaskList[index].checked && this.moveSubtaskToBotttom) {
         this.todo.subTaskList.push(this.todo.subTaskList.splice(index, 1)[0]);
       }
       this.updateTodo();
     },
-    linkifyText: function (text) {
+    linkifyText(text) {
       return linkifyStr(text, this.options);
     },
-    pressEsc: function () {
+    pressEsc() {
       if (document.activeElement.id == "toDoModal") {
         this.$refs.closeModal.click();
       }
