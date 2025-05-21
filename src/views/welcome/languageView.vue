@@ -62,7 +62,7 @@ export default {
     };
   },
   methods: {
-    changeLanguage: function () {
+    changeLanguage() {
       this.$nextTick(function () {
         this.$store.commit("updateConfig", { val: this.language, key: "language" });
         configRepository.update(this.$store.getters.config);
@@ -74,7 +74,7 @@ export default {
         }
       });
     },
-    next: function () {
+    next() {
       document.getElementById("welcome-2-tab").click();
     },
   },
