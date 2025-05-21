@@ -34,10 +34,10 @@
             }
         },
         methods: {
-            back: function () {
+            back() {
                 document.getElementById('welcome-3-tab').click();
             },
-            finish: function () {
+            finish() {
                 initialDataCreator.create(this);
             }
         }
