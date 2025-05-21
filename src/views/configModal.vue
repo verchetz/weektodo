@@ -341,6 +341,12 @@ import linkList from "../components/linkList";
 import configList from "./configList";
 import notifications from "../helpers/notifications";
 import { Modal } from "bootstrap";
+let isElectron;
+try {
+  isElectron = require("is-electron");
+} catch (e) {
+  isElectron = () => false;
+}
 
 export default {
   name: "configModal",
@@ -354,95 +360,91 @@ export default {
     };
   },
   methods: {
-    changeConfig: function (key, val) {
-      this.$nextTick(function () {
+    changeConfig(key, val) {
+      this.$nextTick(() => {
         this.$store.commit("updateConfig", { val: val, key: key });
         configRepository.update(this.$store.getters.config);
         if (key === "language") this.$i18n.locale = this.configData.language;
         if (key === "columns") {
-          setTimeout(
-            function () {
-              this.$emit("changeColumns");
-            }.bind(this),
-            50
-          );
+          setTimeout(() => {
+            this.$emit("changeColumns");
+          }, 50);
         }
       });
     },
-    exportData: function () {
+    exportData() {
       let configModal = Modal.getInstance(document.getElementById("configModal"));
       configModal.hide();
       let exportingModal = new Modal(document.getElementById("exportingModal"), { backdrop: "static" });
       exportingModal.show();
       exportTool.export();
     },
-    importData: function (event) {
+    importData(event) {
       let configModal = Modal.getInstance(document.getElementById("configModal"));
       configModal.hide();
       let importingModal = new Modal(document.getElementById("importingModal"), { backdrop: "static" });
       importingModal.show();
       exportTool.import(event);
     },
-    isElectron: function () {
-      let isElectron = require("is-electron");
+    isElectron() {
       return isElectron();
     },
-    goHome: function () {
+    goHome() {
       document.getElementById("config-home-tab").click();
     },
-    setOpenOnStart: function () {
+    setOpenOnStart() {
       this.changeConfig("openOnStartup", this.configData.openOnStartup);
-      this.$nextTick(function () {
+      this.$nextTick(() => {
         if (this.isElectron()) {
           const { ipcRenderer } = require('electron');
           ipcRenderer.send('set-open-on-startup', this.configData.openOnStartup);
         }
       });
     },
-    setRunInBackground: function () {
+    setRunInBackground() {
       this.changeConfig("runInBackground", this.configData.runInBackground);
-      this.$nextTick(function () {
+      this.$nextTick(() => {
         if (this.isElectron()) {
           const { ipcRenderer } = require('electron');
           ipcRenderer.send('set-run-in-background', this.configData.runInBackground);
         }
       });
     },
-    setLanguage: function () {
+    setLanguage() {
       this.changeConfig('language', this.configData.language);
-      this.$nextTick(function () {
+      this.$nextTick(() => {
         if (this.isElectron()) {
           const { ipcRenderer } = require('electron');
           ipcRenderer.send('set-tray-context-menu-label', { open: this.$t("ui.open"), quit: this.$t("ui.quit") });
         }
       });
     },
-    setSendErrors: function () {
+    setSendErrors() {
       this.changeConfig('reportErrors', this.configData.reportErrors);
     },
-    setDarkTrayIcon: function () {
+    setDarkTrayIcon() {
       this.changeConfig('darkTrayIcon', this.configData.darkTrayIcon);
-      this.$nextTick(function () {
+      this.$nextTick(() => {
         const { ipcRenderer } = require('electron');
         ipcRenderer.send('set-dark-tray-icon', this.configData.darkTrayIcon);
       });
     },
-    playSound: function () {
+    playSound() {
       notifications.playNotificationSound(
         this.$store.getters.config.notificationSound
       );
     },
   },
   computed: {
-    configLinks: function () {
+    configLinks() {
       return configList.configList(this);
-    },
-    watch: {
-      configProp: function (newVal) {
-        this.configData = newVal;
-      }
     }
   },
+  watch: {
+    configProp(newVal) {
+      this.configData = newVal;
+    }
+  }
 };
 </script>
 
