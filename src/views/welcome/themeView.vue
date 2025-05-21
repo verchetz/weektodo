@@ -43,20 +43,20 @@ export default {
     }
   },
   methods: {
-    changeDarkTheme: function () {
+    changeDarkTheme() {
       this.$nextTick(function () {
         this.$store.commit('updateConfig', { val: this.darkTheme, key: "darkTheme" });
         configRepository.update(this.$store.getters.config);
       });
     },
-    next: function () {
+    next() {
       if (isElectron()) {
         document.getElementById('welcome-2-1-tab').click();
       } else {
         document.getElementById('welcome-3-tab').click();
       }
     },
-    back: function () {
+    back() {
       document.getElementById('welcome-1-tab').click();
     }
   }
