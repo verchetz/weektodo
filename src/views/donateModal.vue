@@ -61,8 +61,8 @@ export default {
     linkList
   },
   methods: {
-    goHome: function () {
-      document.getElementById("homeTab").click()
+    goHome() {
+      document.getElementById("homeTab").click();
     },
     async copy() {
       await navigator.clipboard.writeText("https://weektodo.me");
@@ -71,10 +71,10 @@ export default {
     }
   },
   computed: {
-    donateList: function () {
+    donateList() {
       return donateLists.donateList(this);
     },
-    shareList: function () {
+    shareList() {
       return donateLists.shareList(this);
     }
   }
