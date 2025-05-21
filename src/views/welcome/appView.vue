@@ -55,7 +55,7 @@ export default {
     }
   },
   methods: {
-    setOpenOnStart: function () {
+    setOpenOnStart() {
       this.$nextTick(function () {
         const { ipcRenderer } = require('electron');
         ipcRenderer.send('set-open-on-startup', this.openOnStartup);
@@ -63,7 +63,7 @@ export default {
         configRepository.update(this.$store.getters.config);
       });
     },
-    setRunInBackground: function () {
+    setRunInBackground() {
       this.$nextTick(function () {
         const { ipcRenderer } = require('electron');
         ipcRenderer.send('set-run-in-background', this.runInBackground);
@@ -71,10 +71,10 @@ export default {
         configRepository.update(this.$store.getters.config);
       });
     },
-    next: function () {
+    next() {
       document.getElementById('welcome-3-tab').click();
     },
-    back: function () {
+    back() {
       document.getElementById('welcome-2-tab').click();
     }
   }
