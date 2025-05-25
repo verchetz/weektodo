@@ -44,7 +44,7 @@
             }
         },
         methods: {
-            loadSponsors: function () {
+            loadSponsors() {
                 if (this.sponsorsList.length == 0) {
                     const axios = require('axios').default;
                     axios.get('https://support.weektodo.me/data/sponsors.json')
@@ -52,7 +52,7 @@
                         .catch(error => console.log(error.message))
                 }
             },
-            renderSponsors: function (response) {
+            renderSponsors(response) {
                 var data = response.data;
                 data.sort(function (a, b) {
                     if (a.contribution < b.contribution) {
