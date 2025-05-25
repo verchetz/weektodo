@@ -38,16 +38,16 @@ export default {
     };
   },
   methods: {
-    startDrag: function (event, index) {
+    startDrag(event, index) {
       event.dataTransfer.setData("index", index);
     },
-    onDragenter: function (event) {
+    onDragenter(event) {
       event.target.parentElement.classList.add("drag-hover");
     },
-    onDragleave: function (event) {
+    onDragleave(event) {
       event.target.parentElement.classList.remove("drag-hover");
     },
-    onDrop: function (event, to_index) {
+    onDrop(event, to_index) {
       let from_index = event.dataTransfer.getData("index");
       let customLists = this.$store.getters.cTodoListIds;
       let list = customLists.splice(parseInt(from_index), 1)[0];
@@ -56,10 +56,9 @@ export default {
       customToDoListIdsRepository.update(customLists);
       this.$emit('resetCustomList');
     },
-
   },
   computed: {
-    customTodoLists: function () {
+    customTodoLists() {
       return this.$store.getters.cTodoListIds;
     }
   },
