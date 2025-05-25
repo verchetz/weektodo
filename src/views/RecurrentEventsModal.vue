@@ -84,7 +84,7 @@ export default {
     };
   },
   methods: {
-    frecuency: function (task) {
+    frecuency(task) {
       switch (task.type) {
         case "0":
           return this.$t("todoDetails.yearly") + " / " + moment(task.start_date).locale(this.language).format("MMM Do");
@@ -102,12 +102,12 @@ export default {
           return this.$t("todoDetails.daysOfMonth") + " / " + task.repeating_rule.split("BYMONTHDAY=")[1];
       }
     },
-    removeRecurringTask: function (id) {
+    removeRecurringTask(id) {
       this.idToRemove = id;
       let modal = new Modal(document.getElementById("removeReModal"), { backdrop: "static" });
       modal.show();
     },
-    removeRepeatingTaskComfirmed: function () {
+    removeRepeatingTaskComfirmed() {
       repeatingEventRepository.remove(this.idToRemove);
       this.$store.commit("removeRepeatingEvent", this.idToRemove);
       this.$store.getters.selectedDates.forEach((date) => {
@@ -120,13 +120,13 @@ export default {
       let toast = new Toast(document.getElementById("recurrentTaskRemoved"));
       toast.show();
     },
-    removeRepeatingTaskCanceled: function () {
+    removeRepeatingTaskCanceled() {
       let modal = new Modal(document.getElementById("RecurrentEventsModal"));
       modal.show();
     },
   },
   computed: {
-    recurringTasks: function () {
+    recurringTasks() {
       let tasks = [];
       for (const key in this.$store.getters.repeatingEventList) {
         if (this.repeatingType == "all" || this.repeatingType == this.$store.getters.repeatingEventList[key].type)
@@ -134,7 +134,7 @@ export default {
       }
       return tasks;
     },
-    language: function () {
+    language() {
       return this.$store.getters.config.language;
     },
   },
