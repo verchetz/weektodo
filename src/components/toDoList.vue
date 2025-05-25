@@ -79,7 +79,7 @@ export default {
     this.$store.commit("loadTodoLists", { todoListId: listId, todoList: [] });
   },
   methods: {
-    addToDo: function () {
+    addToDo() {
       if (this.newToDo.text != "") {
         var newTodo = {
           text: this.newToDo.text,
@@ -99,13 +99,13 @@ export default {
         this.newToDo.text = "";
       }
     },
-    cancelAdd: function () {
+    cancelAdd() {
       this.newToDo.text = "";
     },
-    moments: function (date) {
+    moments(date) {
       return moment(date);
     },
-    onDrop: function (event, list, new_index) {
+    onDrop(event, list, new_index) {
       let toDo = JSON.parse(event.dataTransfer.getData("item"));
       let index = event.dataTransfer.getData("index");
       this.$store.commit("removeTodo", {
@@ -126,7 +126,7 @@ export default {
         this.updateTodoList(list, this.$store.getters.todoLists[list]);
       }
     },
-    onDropAtEnd: function (event, list) {
+    onDropAtEnd(event, list) {
       let toDo = JSON.parse(event.dataTransfer.getData("item"));
       let index = event.dataTransfer.getData("index");
       this.$store.commit("removeTodo", { toDoListId: toDo.listId, index: index, });
@@ -142,40 +142,40 @@ export default {
       }
       this.fakeItemsDragHover = false;
     },
-    updateTodoList: function (todoListId, TodoList) {
+    updateTodoList(todoListId, TodoList) {
       notifications.refreshDayNotifications(this, todoListId);
       toDoListRepository.update(todoListId, TodoList);
     },
-    setTodoListHeight: function () {
+    setTodoListHeight() {
       if (this.showCustomList) {
         this.fakeItemCounts = Math.floor(this.$refs.listContainer.clientHeight / 40);
       } else {
         this.fakeItemCounts = Math.floor(this.$refs.listContainer.clientHeight / 34);
       }
     },
-    onDragenter: function () {
+    onDragenter() {
       this.fakeItemsDragHover = true;
     },
-    onDragleave: function () {
+    onDragleave() {
       this.fakeItemsDragHover = false;
     },
-    clearRemovedRepeatingEvents: function () {
+    clearRemovedRepeatingEvents() {
       if (this.customTodoList) return;
       repeatingEventHelper.removeGeneratedRepeatingEvents(this.id, this);
     },
   },
   watch: {
-    showCustomList: function () {
+    showCustomList() {
       this.$nextTick(function () {
         this.setTodoListHeight();
       });
     },
   },
   computed: {
-    toDoListState: function () {
+    toDoListState() {
       return this.$store.getters.todoLists[this.id];
     },
-    columns: function () {
+    columns() {
       if (this.customTodoList)
         return this.$store.getters.config.customColumns;
         
