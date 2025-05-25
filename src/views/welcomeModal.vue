@@ -54,26 +54,22 @@
 </template>
 
 <script>
-    import LanguageView from "./welcome/languageView";
-    import ThemeView from "./welcome/themeView";
-    import doneView from "./welcome/doneView";
-    import backupView from "./welcome/privacityView";
-    import appView from "./welcome/appView";
+import LanguageView from "./welcome/languageView";
+import ThemeView from "./welcome/themeView";
+import doneView from "./welcome/doneView";
+import backupView from "./welcome/privacityView";
+import appView from "./welcome/appView";
 
-    export default {
-        name: "aboutModal",
-        components: {
-            LanguageView,
-            ThemeView,
-            doneView,
-            backupView,
-            appView
-        },
-        data() {
-            return {}
-        },
-        methods: {}
+export default {
+    name: "aboutModal",
+    components: {
+        'language-view': LanguageView,
+        'theme-view': ThemeView,
+        'done-view': doneView,
+        'backup-view': backupView,
+        'app-view': appView
     }
+}
 </script>
 
 <style scoped>
