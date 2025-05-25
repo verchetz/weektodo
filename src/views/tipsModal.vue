@@ -37,14 +37,14 @@
             }
         },
         methods: {
-            next: function () {
+            next() {
                 if (this.index == this.tips.length - 1) {
                     this.index = 0;
                 } else {
                     this.index++;
                 }
             },
-            back: function () {
+            back() {
                 if (this.index == 0) {
                     this.index = this.tips.length - 1;
                 } else {
@@ -53,7 +53,7 @@
             }
         },
         computed: {
-            tips: function () {
+            tips() {
                 return [
                     {text: this.$t("tips.tip1")},
                     {text: this.$i18n.t("tips.tip2")},
