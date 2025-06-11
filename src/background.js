@@ -6,21 +6,7 @@ import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 
 const Config = require("electron-config");
 const config = new Config();
-
-const isDevelopment = process.env.NODE_ENV !== "production";
-const gotTheLock = app.requestSingleInstanceLock();
-const isServeMode = () => {
-  return process.env.WEBPACK_DEV_SERVER_URL;
-};
-
-let mainWindow = null;
-var tray = null;
-var trayContextMenu = null;
-var trayMenuTemplate = null;
-var SplashScreenIsHidden = true;
 const path = require("path");
-
-protocol.registerSchemesAsPrivileged([{ scheme: "app", privileges: { secure: true, standard: true, stream: true } }]);
 
 const CONFIG_KEYS = {
   RUN_IN_BACKGROUND: "runInBackground",
@@ -30,6 +16,18 @@ const CONFIG_KEYS = {
   QUIT_LABEL: "quitLabel",
   DARK_TRAY_ICON: "darkTrayIcon",
 };
+
+const isDevelopment = process.env.NODE_ENV !== "production";
+const gotTheLock = app.requestSingleInstanceLock();
+const isServeMode = () => process.env.WEBPACK_DEV_SERVER_URL;
+
+let mainWindow = null;
+let tray = null;
+let trayContextMenu = null;
+let trayMenuTemplate = null;
+let SplashScreenIsHidden = true;
+
+protocol.registerSchemesAsPrivileged([{ scheme: "app", privileges: { secure: true, standard: true, stream: true } }]);
 
 function createMainWindow() {
   let opts = {
@@ -47,18 +45,24 @@ function createMainWindow() {
   win.removeMenu();
   win.webContents.setWindowOpenHandler((details) => {
     require("electron").shell.openExternal(details.url);
-    return { action: 'deny' }
+    return { action: 'deny' };
   });
   return win;
 }
 
-function registerIpcHandlers(win) {
+function registerIpcHandlers() {
   ipcMain.on("show-current-window", showCurrentWindow);
   ipcMain.on("is-windows-visible", isWindowsVisible);
+  ipcMain.on("match-open-on-startup", matchOpenOnStartup);
+  ipcMain.on("set-open-on-startup", setOpenOnStartup);
+  ipcMain.on("set-run-in-background", setRunInBackground);
+  ipcMain.on("set-tray-context-menu-label", setTrayContextMenuLabel);
+  ipcMain.on("set-dark-tray-icon", setDarkTrayIcon);
+  ipcMain.on("clear-config", clearConfig);
 }
 
 function setupWindowEvents(win) {
-  win.on("close", onCloseWindow);
+  win.on("close", (event) => onCloseWindow(event, win));
   win.on("restore", () => setTimeout(hideSplashScreen, 4500));
 }
 
@@ -74,9 +78,9 @@ async function loadMainWindowContent(win) {
 
 async function createWindow() {
   mainWindow = createMainWindow();
-  registerIpcHandlers(mainWindow);
+  registerIpcHandlers();
   setupWindowEvents(mainWindow);
-  if (typeof config.get(CONFIG_KEYS.RUN_IN_BACKGROUND) == "undefined") {
+  if (typeof config.get(CONFIG_KEYS.RUN_IN_BACKGROUND) === "undefined") {
     config.set(CONFIG_KEYS.RUN_IN_BACKGROUND, true);
   }
   await loadMainWindowContent(mainWindow);
@@ -90,7 +94,7 @@ if (!gotTheLock) {
       if (mainWindow.isMinimized()) {
         mainWindow.restore();
       } else {
-        if (config.get("isMaximized")) mainWindow.maximize();
+        if (config.get(CONFIG_KEYS.IS_MAXIMIZED)) mainWindow.maximize();
       }
       showWindow(mainWindow);
     } else {
@@ -103,7 +107,6 @@ if (!gotTheLock) {
       app.quit();
     }
   });
-
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
@@ -111,11 +114,9 @@ if (!gotTheLock) {
       showWindow(mainWindow);
     }
   });
-
   app.on("ready", async () => {
     createTray();
-    createWindow();
-
+    await createWindow();
     if (isDevelopment && !process.env.IS_TEST) {
       try {
         await installExtension(VUEJS_DEVTOOLS);
@@ -124,7 +125,6 @@ if (!gotTheLock) {
       }
     }
   });
-
   if (isDevelopment) {
     if (process.platform === "win32") {
       process.on("message", (data) => {
@@ -140,6 +140,57 @@ if (!gotTheLock) {
   }
 }
 
+function createTray() {
+  if (!config.get(CONFIG_KEYS.DARK_TRAY_ICON)) {
+    config.set(CONFIG_KEYS.DARK_TRAY_ICON, false);
+  }
+  var iconPath = creatTrayIconPath();
+  tray = new Tray(iconPath);
+  if (!config.get(CONFIG_KEYS.OPEN_LABEL)) {
+    config.set(CONFIG_KEYS.OPEN_LABEL, "Open");
+    config.set(CONFIG_KEYS.QUIT_LABEL, "Quit");
+  }
+  trayMenuTemplate = [
+    {
+      label: config.get(CONFIG_KEYS.OPEN_LABEL),
+      click() {
+        if (config.get(CONFIG_KEYS.IS_MAXIMIZED)) mainWindow.maximize();
+        showWindow(mainWindow);
+        setTimeout(hideSplashScreen, 5000);
+      },
+    },
+    {
+      label: config.get(CONFIG_KEYS.QUIT_LABEL),
+      click() {
+        app.isQuiting = true;
+        config.set(CONFIG_KEYS.WIN_BOUNDS, mainWindow.getBounds());
+        config.set(CONFIG_KEYS.IS_MAXIMIZED, mainWindow.isMaximized());
+        app.quit();
+      },
+    },
+  ];
+  trayContextMenu = Menu.buildFromTemplate(trayMenuTemplate);
+  tray.setToolTip("WeekToDo Planner");
+  tray.setContextMenu(trayContextMenu);
+  tray.on("click", () => {
+    tray.popUpContextMenu();
+  });
+}
+
+function creatTrayIconPath() {
+  const darkPrefix = config.get(CONFIG_KEYS.DARK_TRAY_ICON) ? "Dark" : "";
+  if (process.platform === "win32") {
+    app.setAppUserModelId("WeekToDo");
+    return path.join(__dirname, `/trayIcon${darkPrefix}.ico`);
+  } else if (process.platform === "darwin") {
+    return nativeImage.createFromPath(path.join(__dirname, `/trayIcon${darkPrefix}.png`));
+  } else {
+    return isServeMode()
+      ? path.join(__dirname, `/bundled/trayIcon${darkPrefix}@3x.png`)
+      : path.join(__dirname, `/trayIcon${darkPrefix}@3x.png`);
+  }
+}
+
 function hideSplashScreen() {
   mainWindow.webContents.executeJavaScript(
     "if(document.getElementById('splashScreen')) document.getElementById('splashScreen').classList.add('hiddenSplashScreen');"
@@ -149,7 +200,7 @@ function hideSplashScreen() {
 function showCurrentWindow(event) {
   const webContents = event.sender;
   const win = BrowserWindow.fromWebContents(webContents);
-  if (config.get("isMaximized")) mainWindow.maximize();
+  if (config.get(CONFIG_KEYS.IS_MAXIMIZED)) mainWindow.maximize();
   showWindow(win);
 }
 
@@ -173,21 +224,21 @@ function setOpenOnStartup(event, openOnStartup) {
 }
 
 function clearConfig() {
-  config.set("runInBackground", true);
+  config.set(CONFIG_KEYS.RUN_IN_BACKGROUND, true);
 }
 
 function setRunInBackground(event, runInBackground) {
-  config.set("runInBackground", runInBackground);
+  config.set(CONFIG_KEYS.RUN_IN_BACKGROUND, runInBackground);
 }
 
 function setDarkTrayIcon(event, darkTrayIcon) {
-  config.set("darkTrayIcon", darkTrayIcon);
+  config.set(CONFIG_KEYS.DARK_TRAY_ICON, darkTrayIcon);
   tray.setImage(creatTrayIconPath());
 }
 
 function setTrayContextMenuLabel(event, labels) {
-  config.set("openLabel", labels.open);
-  config.set("quitLabel", labels.quit);
+  config.set(CONFIG_KEYS.OPEN_LABEL, labels.open);
+  config.set(CONFIG_KEYS.QUIT_LABEL, labels.quit);
   trayMenuTemplate[0].label = labels.open;
   trayMenuTemplate[1].label = labels.quit;
   const menu = Menu.buildFromTemplate(trayMenuTemplate);
@@ -200,7 +251,6 @@ function matchOpenOnStartup(event, openOnStartup) {
     name: "WeekToDo Planner",
     path: app.getPath("exe"),
   });
-
   autoLauncher
     .isEnabled()
     .then((isEnabled) => {
@@ -235,66 +285,21 @@ function hideWindow(window) {
 
 function closeApp() {
   app.isQuiting = true;
-  config.set("winBounds", mainWindow.getBounds());
-  config.set("isMaximized", mainWindow.isMaximized());
+  config.set(CONFIG_KEYS.WIN_BOUNDS, mainWindow.getBounds());
+  config.set(CONFIG_KEYS.IS_MAXIMIZED, mainWindow.isMaximized());
   app.quit();
 }
 
-function createTray() {
-  if (!config.get("darkTrayIcon")) {
-    config.set("darkTrayIcon", false);
+function onCloseWindow(event, win) {
+  if (!app.isQuiting) {
+    event.preventDefault();
+    config.set(CONFIG_KEYS.WIN_BOUNDS, win.getBounds());
+    config.set(CONFIG_KEYS.IS_MAXIMIZED, win.isMaximized());
+    if (config.get(CONFIG_KEYS.RUN_IN_BACKGROUND)) {
+      hideWindow(win);
+    } else {
+      closeApp();
+    }
   }
-
-  var iconPath = creatTrayIconPath();
-  tray = new Tray(iconPath);
-
-  if (!config.get("openLabel")) {
-    config.set("openLabel", "Open");
-    config.set("quitLabel", "Quit");
-  }
-
-  trayMenuTemplate = [
-    {
-      label: config.get("openLabel"),
-      click() {
-        if (config.get("isMaximized")) mainWindow.maximize();
-        showWindow(mainWindow);
-        setTimeout(hideSplashScreen, 5000);
-      },
-    },
-    {
-      label: config.get("quitLabel"),
-      click() {
-        app.isQuiting = true;
-        config.set("winBounds", mainWindow.getBounds());
-        config.set("isMaximized", mainWindow.isMaximized());
-        app.quit();
-      },
-    },
-  ];
-
-  trayContextMenu = Menu.buildFromTemplate(trayMenuTemplate);
-  tray.setToolTip("WeekToDo Planner");
-  tray.setContextMenu(trayContextMenu);
-  tray.on("click", () => {
-    tray.popUpContextMenu();
-  });
-}
-
-function creatTrayIconPath() {
-  const path = require("path");
-  const darkPrefix = config.get("darkTrayIcon") ? "Dark" : "";
-
-  var iconPath;
-  if (process.platform === "win32") {
-    app.setAppUserModelId("WeekToDo");
-    iconPath = path.join(__dirname, `/trayIcon${darkPrefix}.ico`);
-  } else if (process.platform === "darwin") {
-    iconPath = nativeImage.createFromPath(path.join(__dirname, `/trayIcon${darkPrefix}.png`));
-  } else {
-    iconPath = isServeMode()
-      ? path.join(__dirname, `/bundled/trayIcon${darkPrefix}@3x.png`)
-      : path.join(__dirname, `/trayIcon${darkPrefix}@3x.png`);
-  }
-  return iconPath;
+  return false;
 }
