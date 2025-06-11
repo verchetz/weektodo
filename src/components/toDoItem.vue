@@ -51,7 +51,7 @@ export default {
     };
   },
   methods: {
-    editToDo: function () {
+    editToDo () {
       this.text = this.toDo.text;
       this.editing = true;
       this.$nextTick(function () {
@@ -60,7 +60,7 @@ export default {
       });
       document.getElementById("todo-item-active").style.display = 'none';
     },
-    doneEdit: function () {
+    doneEdit () {
       this.editing = false;
       this.$store.commit("updateTodo", {
         toDoListId: this.toDoListId,
@@ -69,22 +69,22 @@ export default {
       });
       toDoListRepository.update(this.toDoListId, this.$store.getters.todoLists[this.toDoListId]);
     },
-    cancelEdit: function () {
+    cancelEdit () {
       this.text = this.toDo.text;
       this.editing = false;
     },
-    onDragenter: function () {
+    onDragenter () {
       this.todoDragHover = true;
     },
-    onDragleave: function () {
+    onDragleave () {
       this.todoDragHover = false;
     },
-    timeFormat: function (date) {
+    timeFormat (date) {
       if (date) {
         return moment(date, "HH:mm").format("hh:mm a");
       }
     },
-    showToDoItem: function () {
+    showToDoItem () {
       var activeTodo = {
         toDo: this.toDo,
         index: this.index,
@@ -108,13 +108,13 @@ export default {
     },
   },
   computed: {
-    todoText: function () {
+    todoText () {
       return linkifyStr(this.toDo.text, this.options);
     },
-    compactView: function () {
+    compactView () {
       return this.$store.getters.config.compactView;
     },
-    notificationIndicator: function () {
+    notificationIndicator () {
       return this.$store.getters.config.notificationIndicator;
     }
   }
