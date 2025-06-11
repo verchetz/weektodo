@@ -69,11 +69,11 @@ export default {
     }
   },
   methods: {
-    check_all_items: function () {
+    check_all_items() {
       this.$store.commit("checkAllItems", this.id);
       this.updateTodoList(this.id, this.$store.getters.todoLists[this.id]);
     },
-    moveUndoneItems: function () {
+    moveUndoneItems() {
       let towmorrow_id = this.moments(this.id).add(1, "d").format("YYYYMMDD");
       this.$store.commit("moveUndoneItems", {
         origenId: this.id,
@@ -88,14 +88,14 @@ export default {
       }
 
     },
-    moments: function (date) {
+    moments(date) {
       return moment(date);
     },
-    updateTodoList: function (todoListId, TodoList) {
+    updateTodoList(todoListId, TodoList) {
       notifications.refreshDayNotifications(this, todoListId);
       toDoListRepository.update(todoListId, TodoList);
     },
-    allTodoChecked: function () {
+    allTodoChecked() {
       let allChecked = true;
       this.toDoList.forEach(function (todo) {
         if (!todo.checked) {
@@ -105,7 +105,7 @@ export default {
       });
       return allChecked;
     },
-    editToDoListName: function () {
+    editToDoListName() {
       this.name = this.$store.getters.cTodoListIds[this.cTodoListIndex].listName;
       this.editing = true;
       this.$nextTick(function () {
@@ -113,28 +113,28 @@ export default {
         this.$refs.cTodoInput.select();
       });
     },
-    doneEdit: function () {
+    doneEdit() {
       this.editing = false;
       this.$store.commit("updateCustomTodoList", {
         index: this.cTodoListIndex, name: this.name,
       });
       customToDoListIdsRepository.update(this.$store.getters.cTodoListIds);
     },
-    cancelEdit: function () {
+    cancelEdit() {
       this.name = this.$store.getters.cTodoListIds[this.cTodoListIndex].listName || "";
       this.editing = false;
     },
-    removeList: function () {
+    removeList() {
       this.$store.commit("actionsCListToRmvUpdate", {
         id: this.id,
         index: this.cTodoListIndex,
         name: this.$store.getters.cTodoListIds[this.cTodoListIndex].listName,
       });
     },
-    sortItems: function () {
+    sortItems() {
       toDoListRepository.update(this.id, tasksHelper.reorderTasksList(this.toDoList));
     },
-    clearList: function () {
+    clearList() {
       this.$store.commit("setListToClear", this.id);
     },
     copyListTasksToClipboard: async function () {
@@ -142,14 +142,14 @@ export default {
       let toast = new Toast(document.getElementById("copiedTaskToClipboard"));
       toast.show();
     },
-    todoListToString: function () {
+    todoListToString() {
       return this.toDoList.map((x) => {
         let task = `- ${x.text}`;
         if (x.time) task += ` [${x.time}]`;
         return task;
       }).join('\n')
     },
-    newTask: function () {
+    newTask() {
       this.$nextTick(function () {
         document
           .getElementById("list" + this.id)
@@ -159,13 +159,13 @@ export default {
     }
   },
   computed: {
-    is_today: function () {
+    is_today() {
       return moment().format("YYYYMMDD") == this.id;
     },
-    todo_list_name: function () {
+    todo_list_name() {
       return this.$store.getters.cTodoListIds[this.cTodoListIndex].listName;
     },
-    language: function () {
+    language() {
       return this.$store.getters.config.language;
     },
   },

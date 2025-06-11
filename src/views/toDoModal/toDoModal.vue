@@ -491,7 +491,7 @@ export default {
     }
   },
   watch: {
-    selectedTodo: function (newVal) {
+    selectedTodo(newVal) {
       this.todoList = this.$store.getters.todoLists[newVal.toDo.listId];
       this.index = newVal.index;
       this.todo = this.todoList[this.index];
@@ -525,7 +525,7 @@ export default {
         this.loadingView = false;
       });
     },
-    pickedDate: function (newVal) {
+    pickedDate(newVal) {
       if (this.loadingView) return;
 
       var newListId = moment(newVal).format("YYYYMMDD");
@@ -533,33 +533,33 @@ export default {
         this.moveToTodoList(newListId);
       }
     },
-    pickedCList: function (newVal) {
+    pickedCList(newVal) {
       if (this.loadingView) return;
 
       this.moveToTodoList(newVal);
     }
   },
   computed: {
-    language: function () {
+    language() {
       let lang = this.$store.getters.config.language;
       return languageHelper.getLanguagePack(lang);
     },
-    showCL: function () {
+    showCL() {
       return this.$store.getters.config.customList;
     },
-    showCal: function () {
+    showCal() {
       return this.$store.getters.config.calendar;
     },
-    todoText: function () {
+    todoText() {
       return linkifyStr(this.todo.text, this.options);
     },
-    fullscreenToDoModal: function () {
+    fullscreenToDoModal() {
       return this.$store.getters.config.fullscreenToDoModal;
     },
-    moveSubtaskToBotttom: function () {
+    moveSubtaskToBotttom() {
       return this.$store.getters.config.moveCompletedSubTaskToBottom;
     },
-    weekStartOnMonday: function () {
+    weekStartOnMonday() {
       return this.$store.getters.config.weekStartOnMonday ? 1 : 0;
     }
   },

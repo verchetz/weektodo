@@ -232,7 +232,7 @@ export default {
     },
   },
   watch: {
-    repeatingEvent: function (newVal) {
+    repeatingEvent(newVal) {
       let re = this.$store.getters.repeatingEventList[newVal];
       this.weekdays = { mon: false, tue: false, wed: false, thu: false, fri: false, sat: false, sun: false };
       if (re) {
@@ -270,7 +270,7 @@ export default {
     },
   },
   computed: {
-    language: function () {
+    language() {
       return this.$store.getters.config.language;
     },
   },

@@ -269,7 +269,7 @@ export default {
     this.resetAppOnDayChange();
   },
   methods: {
-    weekMoveLeft: function () {
+    weekMoveLeft() {
       this.selected_date = moment(this.selected_date).subtract(1, "d").format("YYYYMMDD");
       this.$refs.weekListContainer.scrollLeft = this.todoListWidth() * 2;
       this.$refs.weekListContainer.scroll({
@@ -278,7 +278,7 @@ export default {
         behavior: "smooth",
       });
     },
-    weekMoveRight: function () {
+    weekMoveRight() {
       this.selected_date = moment(this.selected_date).add(1, "d").format("YYYYMMDD");
       this.$refs.weekListContainer.scrollLeft = 0;
       this.$refs.weekListContainer.scroll({
@@ -287,7 +287,7 @@ export default {
         behavior: "smooth",
       });
     },
-    deleteOldRepeatingEvents: function () {
+    deleteOldRepeatingEvents() {
       for (const event of Object.entries(this.$store.getters.repeatingEventList)) {
         if (moment(event[1].end_date).isBefore(moment())) {
           repeatingEventRepository.remove(event[0]);
@@ -295,28 +295,28 @@ export default {
         }
       }
     },
-    weekResetScroll: function () {
+    weekResetScroll() {
       this.$refs.weekListContainer.scrollLeft = this.todoListWidth();
     },
-    customMoveRight: function () {
+    customMoveRight() {
       this.$refs.customListContainer.scrollLeft =
         this.$refs.customListContainer.scrollLeft + this.customTodoListWidth() - 13;
     },
-    customMoveLeft: function () {
+    customMoveLeft() {
       this.$refs.customListContainer.scrollLeft = this.$refs.customListContainer.scrollLeft - this.customTodoListWidth();
     },
-    resetCustomList: function () {
+    resetCustomList() {
       this.$nextTick(function () {
         this.$refs.customListContainer.scrollLeft = 0;
       });
     },
-    todoListWidth: function () {
+    todoListWidth() {
       return this.$refs.weekListContainer.clientWidth / this.columns;
     },
-    customTodoListWidth: function () {
+    customTodoListWidth() {
       return this.$refs.customListContainer.clientWidth / this.customColumns;
     },
-    setSelectedDate: function (date) {
+    setSelectedDate(date) {
       this.selected_date = date;
       this.$nextTick(function () {
         document
@@ -325,11 +325,11 @@ export default {
           .focus();
       });
     },
-    isElectron: function () {
+    isElectron() {
       let isElectron = require("is-electron");
       return isElectron();
     },
-    hideSplash: function () {
+    hideSplash() {
       if (this.isElectron()) {
         if (this.ipcRenderer.sendSync("is-windows-visible")) {
           this.$refs.splash.hideSplash();
@@ -342,7 +342,7 @@ export default {
         this.showWelcomeModal();
       }
     },
-    showWelcomeModal: function () {
+    showWelcomeModal() {
       let modal = new Modal(document.getElementById("welcomeModal"), {
         backdrop: "static",
       });
@@ -350,10 +350,10 @@ export default {
       this.$store.commit("updateConfig", { val: false, key: "firstTimeOpen" });
       configRepository.update(this.$store.getters.config);
     },
-    compatible: function () {
+    compatible() {
       return window.IndexedDB;
     },
-    resizerDblClick: function () {
+    resizerDblClick() {
       if (this.$store.getters.config.mainDividerPosition != 1) return;
 
       this.calendarHeight = "calc(50% - 50px)";
@@ -363,17 +363,17 @@ export default {
       });
       configRepository.update(this.$store.getters.config);
     },
-    resizerMouseDownHandler: function (e) {
+    resizerMouseDownHandler(e) {
       if (this.$store.getters.config.mainDividerPosition != 1) return;
 
       this.resizerY = e.clientY - 50;
       document.addEventListener("mousemove", this.resizerMouseMoveHandler);
       document.addEventListener("mouseup", this.resizerMouseUpHandler);
     },
-    resizerMouseMoveHandler: function (e) {
+    resizerMouseMoveHandler(e) {
       this.calendarHeight = `${((e.clientY - 50) * 100) / this.zoom}px`;
     },
-    resizerMouseUpHandler: function () {
+    resizerMouseUpHandler() {
       document.removeEventListener("mousemove", this.resizerMouseMoveHandler);
       document.removeEventListener("mouseup", this.resizerMouseUpHandler);
       this.$store.commit("updateConfig", {
@@ -382,13 +382,13 @@ export default {
       });
       configRepository.update(this.$store.getters.config);
     },
-    refreshTodayNotifications: function () {
+    refreshTodayNotifications() {
       notifications.refreshDayNotifications(this, moment().format("YYYYMMDD"));
     },
-    todoListMounted: function () {
+    todoListMounted() {
       this.methodsAfterInitialLoad();
     },
-    methodsAfterInitialLoad: function () {
+    methodsAfterInitialLoad() {
       if (!this.initialLoadCompleted) {
         this.initialListLoaded++;
         if (this.initialListLoaded == this.initialListToLoad) {
@@ -409,7 +409,7 @@ export default {
         }
       }
     },
-    showInitialNotification: function () {
+    showInitialNotification() {
       if (!(this.$store.getters.config.notificationOnStartup && !this.$store.getters.config.firstTimeOpen)) return;
       setTimeout(
         function () {
@@ -430,7 +430,7 @@ export default {
         2000
       );
     },
-    initialNotificationText: function () {
+    initialNotificationText() {
       let yesterdayTasks = this.$store.getters.todoLists[moment().subtract(1, "d").format("YYYYMMDD")];
       let todayTasks = this.$store.getters.todoLists[moment().format("YYYYMMDD")];
 
@@ -447,7 +447,7 @@ export default {
         return this.$t("notifications.pendingTasksYesterdayAndToday", [yesterayPendingTasksCount, todayPendingTasksCount]);
       }
     },
-    resetAppOnDayChange: function () {
+    resetAppOnDayChange() {
       var x = new moment();
       var y = new moment().add(1, "d").startOf("date");
       var duration = moment.duration(y.diff(x)).asMilliseconds();
@@ -489,7 +489,7 @@ export default {
       });
       return promise;
     },
-    setDividerPosition: function (position) {
+    setDividerPosition(position) {
       this.$nextTick(function () {
         document.getElementById("app-container").classList.add("scrolling");
         setTimeout(() => {
@@ -499,7 +499,7 @@ export default {
         configRepository.update(this.$store.getters.config);
       });
     },
-    checkVersion: function () {
+    checkVersion() {
       if (version_json.version != this.$store.getters.config.version) {
         this.$store.commit("updateConfig", { val: version_json.version, key: "version" });
         configRepository.update(this.$store.getters.config);
@@ -507,7 +507,7 @@ export default {
         toast.show();
       }
     },
-    checkForUpdates: function () {
+    checkForUpdates() {
       if (this.isElectron() && this.$store.getters.config.checkUpdates) {
         const axios = require("axios").default;
         axios
@@ -516,7 +516,7 @@ export default {
           .catch((error) => console.log(error.message));
       }
     },
-    checksOnLoadApp: function () {
+    checksOnLoadApp() {
       if (this.isElectron()) {
         require("electron").ipcRenderer.on("initial-checks", () => {
           this.checkVersion();
@@ -526,13 +526,13 @@ export default {
         this.checkVersion();
       }
     },
-    showNewVersionToast: function (response) {
+    showNewVersionToast(response) {
       if (response.data.version != version_json.version) {
         var toast = new Toast(document.getElementById("newVersionAvailable"));
         toast.show();
       }
     },
-    downloadNewVersion: function () {
+    downloadNewVersion() {
       let isElectron = require("is-electron");
       if (isElectron()) {
         require("electron").shell.openExternal("https://weektodo.me", "_blank");
@@ -540,10 +540,10 @@ export default {
         window.open("https://weektodo.me", "_blank");
       }
     },
-    seeChangeLog: function () {
+    seeChangeLog() {
       window.open("https://weektodo.me/changelog", "_blank");
     },
-    syncElectronConfig: function () {
+    syncElectronConfig() {
       const { ipcRenderer } = require("electron");
       ipcRenderer.send("set-tray-context-menu-label", { open: this.$t("ui.open"), quit: this.$t("ui.quit") });
       ipcRenderer.send("set-open-on-startup", this.$store.getters.config.openOnStartup);
@@ -552,7 +552,7 @@ export default {
     },
   },
   computed: {
-    dates_array: function () {
+    dates_array() {
       if (!this.selected_date) return [];
       var dates_array = [moment(this.selected_date).subtract(1, "d").format("YYYYMMDD"), this.selected_date];
 
@@ -569,44 +569,44 @@ export default {
       this.$store.commit("updateSelectedDates", dates_array);
       return dates_array;
     },
-    showCustomList: function () {
+    showCustomList() {
       return this.$store.getters.config.customList;
     },
-    showCalendar: function () {
+    showCalendar() {
       return this.$store.getters.config.calendar;
     },
-    columns: function () {
+    columns() {
       return this.$store.getters.config.columns;
     },
-    customColumns: function () {
+    customColumns() {
       return this.$store.getters.config.customColumns;
     },
-    zoom: function () {
+    zoom() {
       return this.$store.getters.config.zoom;
     },
-    darkTheme: function () {
+    darkTheme() {
       return this.$store.getters.config.darkTheme;
     },
-    resizableStyle: function () {
+    resizableStyle() {
       if (this.showCalendar && this.showCustomList) {
         return { height: this.calendarHeight };
       } else {
         return {};
       }
     },
-    selectedTodo: function () {
+    selectedTodo() {
       if (this.$store.getters.actions.selectedTodo) {
         return this.$store.getters.actions.selectedTodo;
       }
       return null;
     },
-    activeTodo: function () {
+    activeTodo() {
       if (this.$store.getters.activeTodo) {
         return this.$store.getters.activeTodo;
       }
       return null;
     },
-    mainDividerPositionClass: function () {
+    mainDividerPositionClass() {
       if (this.$store.getters.config.mainDividerPosition == 0) {
         return "on-bottom";
       } else if (this.$store.getters.config.mainDividerPosition == 1) {
@@ -615,12 +615,12 @@ export default {
         return "on-top";
       }
     },
-    hideTopListContainer: function () {
+    hideTopListContainer() {
       if (!this.$store.getters.config.customList || !this.$store.getters.config.calendar) return false;
 
       return this.$store.getters.config.mainDividerPosition == 2 ? true : false;
     },
-    hideBottomListContainer: function () {
+    hideBottomListContainer() {
       if (!this.$store.getters.config.customList || !this.$store.getters.config.calendar) return false;
 
       return this.$store.getters.config.mainDividerPosition == 0 ? true : false;

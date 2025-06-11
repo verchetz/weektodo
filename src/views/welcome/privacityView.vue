@@ -40,16 +40,16 @@ export default {
     }
   },
   methods: {
-    changeSendErrors: function () {
+    changeSendErrors() {
       this.$nextTick(function () {
         this.$store.commit('updateConfig', { val: this.reportErrors, key: "reportErrors" });
         configRepository.update(this.$store.getters.config);
       });
     },
-    next: function () {
+    next() {
       document.getElementById('welcome-4-tab').click();
     },
-    back: function () {
+    back() {
       document.getElementById('welcome-2-tab').click();
     }
   }

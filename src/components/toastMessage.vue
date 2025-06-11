@@ -22,11 +22,11 @@
             id: {type: String, required: true},
         },
         methods: {
-            show: function () {
+            show() {
                 var toast = new Toast(this.$refs.toast);
                 toast.show();
             },
-            subTextClick: function () {
+            subTextClick() {
                 this.$emit("subTextClick");
             }
         }

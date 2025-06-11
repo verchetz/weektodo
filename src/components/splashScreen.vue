@@ -58,10 +58,10 @@ export default {
       .catch((error) => console.log(error.message));
   },
   methods: {
-    hideSplash: function () {
+    hideSplash() {
       this.show = false;
     },
-    renderSponsor: function (response) {
+    renderSponsor(response) {
       const sponsors = [];
 
       // Add default sponsor

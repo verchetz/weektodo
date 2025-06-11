@@ -19,7 +19,7 @@
             img: {type: String, required: false},
         },
         methods: {
-            click_btn: function () {
+            click_btn() {
                 this.$emit('clickBtn');
             }
         }

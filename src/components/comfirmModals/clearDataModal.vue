@@ -14,7 +14,7 @@ export default {
     comfirmModal
   },
   methods: {
-    clearData: function () {
+    clearData() {
       if (isElectron()) {
         let ipcRenderer;
         try {
