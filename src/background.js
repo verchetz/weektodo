@@ -22,68 +22,64 @@ const path = require("path");
 
 protocol.registerSchemesAsPrivileged([{ scheme: "app", privileges: { secure: true, standard: true, stream: true } }]);
 
-async function createWindow() {
+const CONFIG_KEYS = {
+  RUN_IN_BACKGROUND: "runInBackground",
+  WIN_BOUNDS: "winBounds",
+  IS_MAXIMIZED: "isMaximized",
+  OPEN_LABEL: "openLabel",
+  QUIT_LABEL: "quitLabel",
+  DARK_TRAY_ICON: "darkTrayIcon",
+};
+
+function createMainWindow() {
   let opts = {
     minWidth: 1000,
     minHeight: 600,
-    show: !config.get("runInBackground"),
+    show: !config.get(CONFIG_KEYS.RUN_IN_BACKGROUND),
     icon: path.join(__dirname, 'icon.png'),
     webPreferences: {
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
       contextIsolation: false,
     },
   };
-
-  Object.assign(opts, config.get("winBounds"));
-
-  mainWindow = new BrowserWindow(opts);
-  mainWindow.removeMenu();
-
-   mainWindow.webContents.setWindowOpenHandler((details) => {
+  Object.assign(opts, config.get(CONFIG_KEYS.WIN_BOUNDS));
+  const win = new BrowserWindow(opts);
+  win.removeMenu();
+  win.webContents.setWindowOpenHandler((details) => {
     require("electron").shell.openExternal(details.url);
     return { action: 'deny' }
-  })
+  });
+  return win;
+}
 
+function registerIpcHandlers(win) {
   ipcMain.on("show-current-window", showCurrentWindow);
   ipcMain.on("is-windows-visible", isWindowsVisible);
-  ipcMain.on("match-open-on-startup", matchOpenOnStartup);
-  ipcMain.on("set-open-on-startup", setOpenOnStartup);
-  ipcMain.on("set-run-in-background", setRunInBackground);
-  ipcMain.on("set-tray-context-menu-label", setTrayContextMenuLabel);
-  ipcMain.on("set-dark-tray-icon", setDarkTrayIcon);
-  ipcMain.on("clear-config", clearConfig);
+}
 
-  if (typeof config.get("runInBackground") == "undefined") {
-    config.set("runInBackground", true);
-  }
+function setupWindowEvents(win) {
+  win.on("close", onCloseWindow);
+  win.on("restore", () => setTimeout(hideSplashScreen, 4500));
+}
 
-  mainWindow.on("close", function (event) {
-    if (!app.isQuiting) {
-      event.preventDefault();
-      config.set("winBounds", mainWindow.getBounds());
-      config.set("isMaximized", mainWindow.isMaximized());
-      if (config.get("runInBackground")) {
-        hideWindow(mainWindow);
-      } else {
-        closeApp();
-      }
-    }
-
-    return false;
-  });
-
-  mainWindow.on("restore", function () {
-    setTimeout(hideSplashScreen, 4500);
-  });
-
+async function loadMainWindowContent(win) {
   if (process.env.WEBPACK_DEV_SERVER_URL) {
-    // Load the url of the dev server if in development mode
-    await mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
-    if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
+    await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
+    if (!process.env.IS_TEST) win.webContents.openDevTools();
   } else {
     createProtocol("app");
-    mainWindow.loadURL("app://./index.html");
+    win.loadURL("app://./index.html");
   }
+}
+
+async function createWindow() {
+  mainWindow = createMainWindow();
+  registerIpcHandlers(mainWindow);
+  setupWindowEvents(mainWindow);
+  if (typeof config.get(CONFIG_KEYS.RUN_IN_BACKGROUND) == "undefined") {
+    config.set(CONFIG_KEYS.RUN_IN_BACKGROUND, true);
+  }
+  await loadMainWindowContent(mainWindow);
 }
 
 if (!gotTheLock) {
